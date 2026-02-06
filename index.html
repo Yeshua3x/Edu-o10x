@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editor HTML Simples</title>
+  <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/png" href="icon-192x192.png" />
+    <link rel="apple-touch-icon" href="icon-192x192.png" />
+    <meta name="theme-color" content="#f4f4f4" />
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --fg: #e0e0e0;
+      --border: #444;
+      --header: #252526;
+      --accent: #0d8cff;
+      --card: #2d2d2d;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      height: 100vh;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--header);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    h1 { font-size: 1.1rem; font-weight: 500; }
+
+    .btn {
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      border: 1px solid #555;
+      border-radius: 6px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      transition: all 0.13s;
+    }
+
+    .btn:hover { background: #444; }
+    .btn-primary   { background: var(--accent); border-color: var(--accent); }
+    .btn-primary:hover { background: #0077e6; }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: flex 0.3s ease;
+    }
+
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+      position: relative;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      background: var(--card);
+      color: #aaa;
+      border-bottom: 2px solid var(--accent);
+      font-size: 0.95rem;
+    }
+
+    #code {
+      flex: 1;
+      background: var(--bg);
+      color: #d4d4d4;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 15px;
+      padding: 14px;
+      border: none;
+      outline: none;
+      resize: none;
+      line-height: 1.5;
+      margin-left: 40px; /* espaço para as linhas */
+    }
+
+    #line-numbers {
+      position: absolute;
+      top: 0;
+      left: 10px;
+      bottom: 0;
+      width: 40px; /* Largura ajustada */
+      background: #2d2d2d;
+      color: #aaa;
+      text-align: right;
+      padding: 14px;
+      border-right: 1px solid var(--border);
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px; /* Tamanho aumentado */
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    #preview-container {
+      flex: 0; /* Oculto inicialmente */
+      background: white;
+      position: relative;
+      overflow: hidden;
+      transition: flex 0.3s ease;
+    }
+
+    #preview {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+    }
+
+    .preview-expanded {
+      flex: 1; /* Ocupa espaço total */
+    }
+
+    @media (max-width: 900px) {
+      .main { flex-direction: column; }
+    }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: stretch; gap: 8px; }
+      .btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+    <h1>Editor HTML</h1>
+    <button class="btn" onclick="toggleExpand()">Alternar Tela Grande</button>
+  </div>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <button class="btn btn-primary" id="runButton" onclick="runCode()">Executar</button>
+    <button class="btn" onclick="openInNewTab()">Abrir no navegador</button>
+  </div>
+</header>
+
+<div class="main" id="main">
+  <div class="editor-area" id="editor-area">
+    <div class="tab">Seu código (HTML + CSS + JS)</div>
+    <div id="line-numbers"></div>
+    <textarea id="code" spellcheck="false"><!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exemplo</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+    }
+    h1 { font-size: 3.8rem; }
+    button {
+      margin-top: 2rem;
+      padding: 14px 32px;
+      font-size: 1.2rem;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div>
+    <h1>Olá!</h1>
+    <button onclick="alert('Funciona!')">Clique aqui</button>
+  </div>
+
+</body>
+</html></textarea>
+  </div>
+
+  <div id="preview-container">
+    <iframe id="preview" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe>
+  </div>
+
+</div>
+
+<script>
+// ──────────────────────────────────────────────
+const codeEditor = document.getElementById('code');
+const preview = document.getElementById('preview');
+const main = document.getElementById('main');
+const lineNumbers = document.getElementById('line-numbers');
+const runButton = document.getElementById('runButton');
+
+let isExpanded = false;
+
+let debounceTimer;
+
+function updatePreview() {
+  const html = codeEditor.value;
+  preview.srcdoc = html;
+  updateLineNumbers();
+}
+
+function runCode() {
+  if (!isExpanded) {
+    document.getElementById("preview-container").style.flex = "1"; // ocupa espaço parcial
+    runButton.textContent = "Fechar"; // muda para "Fechar"
+  } else {
+    document.getElementById("preview-container").style.flex = "0"; // some completamente
+    runButton.textContent = "Executar"; // volta para "Executar"
+  }
+  isExpanded = !isExpanded; // alterna o estado
+}
+
+function openInNewTab() {
+  const code = codeEditor.value;
+  const blob = new Blob([code], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+}
+
+// Atualiza os números das linhas
+function updateLineNumbers() {
+  const lines = codeEditor.value.split('\n').length;
+  lineNumbers.innerHTML = Array.from({ length: lines }, (_, i) => `<span>${i + 1}</span>`).join('\n');
+}
+
+// Auto-update suave (com debounce)
+codeEditor.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(updatePreview, 500);
+});
+
+// Suporte a TAB = 2 espaços
+codeEditor.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = codeEditor.selectionStart;
+    const end = codeEditor.selectionEnd;
+    codeEditor.value = codeEditor.value.substring(0, start) + "  " + codeEditor.value.substring(end);
+    codeEditor.selectionStart = codeEditor.selectionEnd = start + 2;
+    updateLineNumbers();
+  }
+});
+
+// Primeira execução
+updatePreview();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('✅ Service Worker registrado', reg))
+        .catch(err => console.error('❌ Erro ao registrar o SW:', err));
+    });
+  }
+</script>
+
+</body>
+</html>
